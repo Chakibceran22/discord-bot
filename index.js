@@ -1,48 +1,23 @@
-require("dotenv").config();
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+import { Client, IntentsBitField } from 'discord.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-});
+  intents:[
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent
+  ]
+})
 
-client.once("ready", () => {
-  console.log(`✅ Logged in as ${client.user.tag}!`);
-});
-
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-
-  if (message.content.toLowerCase() === "!info") {
-    // Create an embedded message
-    const embed = new EmbedBuilder()
-      .setColor("#0099ff")
-      .setTitle("Bot Info")
-      .setDescription("Click the button below to learn more!")
-      .setThumbnail(client.user.displayAvatarURL());
-
-    // Create a button
-    const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder()
-        .setCustomId("more_info")
-        .setLabel("More Info")
-        .setStyle(ButtonStyle.Primary)
-    );
-
-    await message.reply({ embeds: [embed], components: [row] });
+client.on('ready',(cl) => {
+  console.log(`Logged in as ${cl.user.username}`)
+})
+client.on("messageCreate", async(message) => {
+  if(message.author.bot) return;
+  if ( message.content.toLowerCase().match(/^\bh\w*/i)) {
+    await message.reply('pong')
   }
-});
+})
+client.login(process.env.TOKEN)
 
-// Handle button clicks
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isButton()) return;
-
-  if (interaction.customId === "more_info") {
-    await interaction.reply("This bot was made using **Node.js** and **Discord.js**! 🚀");
-  }
-});
-
-client.login(process.env.TOKEN);
